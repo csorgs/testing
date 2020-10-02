@@ -1,9 +1,17 @@
-
 resource "aws_instance" "webserver" {
 ami = "ami-025312911dac117a0"
 instance_type = "t2.medium"
 subnet_id = "${aws_subnet.publicsubnet1.id}"
 private_ip = "192.168.4.4"
+vpc_security_group_ids = ["${aws_security_group.websg.id}"]
+key_name = "virginia"
+}
+
+resource "aws_instance" "dbserver" {
+ami = "ami-025312911dac117a0"
+instance_type = "t2.medium"
+subnet_id = "${aws_subnet.publicsubnet1.id}"
+private_ip = "192.168.4.5"
 vpc_security_group_ids = ["${aws_security_group.websg.id}"]
 key_name = "virginia"
 }
@@ -41,13 +49,13 @@ resource "aws_security_group" "websg" {
 }
 
 
-############################################ Networking modules ###############################3
+############################################ Networking modules ######################
 resource "aws_eip" "webeip"{
 instance = "${aws_instance.webserver.id}"
 }
-#resource "aws_eip" "dbeip"{
-#instance = "${aws_instance.dbserver.id}"
-#}
+resource "aws_eip" "dbeip"{
+instance = "${aws_instance.dbserver.id}"
+}
 resource "aws_vpc" "myvpc"{
 cidr_block = "192.168.0.0/16"
 tags ={
@@ -91,9 +99,6 @@ subnet_id = "${aws_subnet.publicsubnet1.id}"
 provider "aws"{
 region = "${var.myregion}"
 shared_credentials_file = "/home/centos/.aws/credentials"
-}
-provider "template"{
-
 }
 
 
